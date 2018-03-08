@@ -23,8 +23,6 @@ contract('DoS Gas Test', accounts => {
   beforeEach(async () => {
     victim = await DoSGasVictim.new()
     attacker = await DoSGas.new()
-
-    attacker.sendTransaction({ value: oneEther });
   })
 
   describe('Victim', () => {
