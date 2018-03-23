@@ -43,6 +43,9 @@
     "webpack-dev-server": "^2.3.0"
   },
   "dependencies": {
-    "ethereumjs-util": "^5.1.5"
+    "ethereumjs-util": "^5.1.5",
+    "keccak": "^1.4.0",
+    "rlp": "^2.0.0",
+    "sha3": "^1.2.0"
   }
 }

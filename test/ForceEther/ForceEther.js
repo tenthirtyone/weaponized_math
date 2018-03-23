@@ -21,22 +21,35 @@ contract('Force Ether Test', accounts => {
 
   beforeEach(async () => {
     victim = await ForceEtherVictim.new()
+
     attacker = await ForceEther.new()
 
-    attacker.sendTransaction({value:oneEther});
+    await attacker.sendTransaction({value:oneEther});
   })
 
-  describe('Victim', () => {
-    it('Cannot receive Ether', async () => {
-      await assertRevert(victim.sendTransaction({value: oneEther}));
+  describe('Using selfdestruct', async () => {
+    describe('Victim', () => {
+      it('Cannot receive Ether', async () => {
+        await assertRevert(victim.sendTransaction({ value: oneEther }));
+      })
+    })
+    describe('Attacker', () => {
+      it('Selfdestructs and sends Ether', async () => {
+        await attacker.selfDestruct(victim.address);
+        const bal = await victim.getBalance();
+
+        bal.should.be.bignumber.equal(oneEther);
+      })
     })
   })
-  describe('Attacker', () => {
-    it('Selfdestructs and sends Ether', async () => {
-      await attacker.selfDestruct(victim.address);
-      const bal = await victim.getBalance();
 
-      bal.should.be.bignumber.equal(oneEther);
+  describe('Using predetermination', async () => {
+    it('Send ether before the contract exists', async () => {
+      // 0xb91f286fd4afa02f7099926f7cec8ad14f779b85 = SHA3(RLP(mallory, 1));
+      await web3.eth.sendTransaction({ to: "0xb91f286fd4afa02f7099926f7cec8ad14f779b85", value: oneEther, from: creator });
+      const victimMal = await ForceEtherVictim.new({ from: mallory })
+      const balance = await victimMal.getBalance();
+      balance.should.be.bignumber.equal(oneEther);
     })
   })
 })
